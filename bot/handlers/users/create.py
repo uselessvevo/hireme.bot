@@ -146,9 +146,9 @@ async def user_register_finish(message: types.Message, state: FSMContext) -> Non
 @router.callback_query(filters.StateFilter(RegisterUserStates.finish))
 async def user_register_finish(callback: types.CallbackQuery, state: FSMContext) -> None:
     state_data = await state.get_data()
-    await db.pool.execute(
+    user_id = await db.pool.execute(
         """
-        insert into
+        INSERT INTO
             users (
                 id,
                 curator_id,
@@ -159,8 +159,10 @@ async def user_register_finish(callback: types.CallbackQuery, state: FSMContext)
                 middlename, 
                 patronymic
             )
-        values
-            (default, $1, $2, $3, $4, $5, $6, $7)
+        VALUES
+            (DEFAULT, $1, $2, $3, $4, $5, $6, $7)
+        RETURNING 
+            id
         """,
         callback.from_user.id,
         state_data.get("email"),
@@ -178,7 +180,7 @@ async def user_register_finish(callback: types.CallbackQuery, state: FSMContext)
             ($1, $2)
         """,
         state_data.get("transmittal_letter"),
-        callback.from_user.id
+        user_id
     )
     await callback.message.answer("Всё готово!")
     await state.clear()

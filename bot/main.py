@@ -27,14 +27,16 @@ async def start_redis_coros():
         while True:
             message = await pubsub.get_message(timeout=100)
             logger.info(message)
-            channel = message.get("channel").decode("utf-8").split(":")
 
             if message:
-                if isinstance(message.get("data"), (str, bytes, memoryview)):
-                    # Получаем id куратора и пользователя, и отправляем сообщение в чат
-                    if len(channel) == 2 and all(str(i).isdigit() for i in channel):
-                        curator_id, user_id = list(map(int, channel))
-                        await bot.send_message(curator_id, message.get("data"))
+                channel = message.get("channel")
+                if channel:
+                    channel = channel.decode("utf-8").split(":")
+                    if isinstance(message.get("data"), (str, bytes, memoryview)):
+                        # Получаем id куратора и пользователя, и отправляем сообщение в чат
+                        if len(channel) == 2 and all(str(i).isdigit() for i in channel):
+                            curator_id, user_id = list(map(int, channel))
+                            await bot.send_message(curator_id, message.get("data"))
 
 
 def main() -> None:

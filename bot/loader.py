@@ -3,11 +3,10 @@ import asyncio
 from aiogram import Bot, Dispatcher
 
 from core import config
+from core.database import Database
 
 
-def setup_database() -> "Database":
-    from core.database import Database
-
+def setup_database() -> Database:
     loop = asyncio.get_event_loop()
     database = Database(loop)
     return database
@@ -18,10 +17,8 @@ def setup_dispatcher() -> Dispatcher:
     from bot.handlers.users.main import router as users_router
     from bot.handlers.users.create import router as user_register_router
     from bot.handlers.users.edit import router as user_edit_router
-
     from bot.handlers.filters.create import router as filter_create_router
     from bot.handlers.filters.edit import router as filter_edit_router
-
     from bot.handlers.search.main import router as search_main_router
 
     dispatcher = Dispatcher()
