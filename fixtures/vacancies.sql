@@ -3,6 +3,8 @@ create table vacancies (
     user_id int8 not null,
     url varchar not null,
     content text null,
+    title varchar null,
+    salary varchar null,
     percentage float null,
     parsed bool not null default false,
     constraint vacancies_pkey primary key (id),

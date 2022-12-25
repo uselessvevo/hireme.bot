@@ -20,6 +20,7 @@ def setup_dispatcher() -> Dispatcher:
     from bot.handlers.filters.create import router as filter_create_router
     from bot.handlers.filters.edit import router as filter_edit_router
     from bot.handlers.search.main import router as search_main_router
+    from bot.handlers.users.vacancies import router as callbacks_router
 
     dispatcher = Dispatcher()
     # Replace it with automatic router
@@ -28,6 +29,7 @@ def setup_dispatcher() -> Dispatcher:
     dispatcher.include_router(users_router)
     dispatcher.include_router(user_register_router)
     dispatcher.include_router(user_edit_router)
+    dispatcher.include_router(callbacks_router)
 
     dispatcher.include_router(filter_create_router)
     dispatcher.include_router(filter_edit_router)

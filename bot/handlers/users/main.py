@@ -68,9 +68,9 @@ async def users_list(callback: types.CallbackQuery, state: FSMContext):
                             ).pack()
                         ),
                         types.InlineKeyboardButton(
-                            text="Удалить",
+                            text="Показать последние отклики",
                             callback_data=UserCallback(
-                                action="delete_user",
+                                action="show_vacancies_callback",
                                 user_id=user.get("id")
                             ).pack()
                         )
