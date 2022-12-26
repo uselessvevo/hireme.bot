@@ -14,7 +14,7 @@ router.callback_query.middleware(EmployeePermissionMiddleware())
 
 
 @router.callback_query(filters.Text("search_request"))
-async def users_list(callback: types.CallbackQuery, state: FSMContext):
+async def search_request(callback: types.CallbackQuery, state: FSMContext):
     await state.clear()
     await callback.message.delete()
 
