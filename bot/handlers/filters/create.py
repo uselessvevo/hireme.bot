@@ -14,7 +14,7 @@ from bot.handlers.filters.helpers import build_result_filter
 from bot.handlers.filters.helpers import build_salary_filter
 from bot.handlers.filters.helpers import build_resume_url_filter
 
-from core.requests import make_scrapper_request
+from core.requests import request_start_task
 
 router = Router(name="fitlers.create")
 router.message.middleware(EmployeePermissionMiddleware())
@@ -148,7 +148,7 @@ async def filter_register_finish(callback: types.CallbackQuery, state: FSMContex
         int(state_data.get("user_id")),
     )
 
-    await make_scrapper_request(callback.from_user.id, state_data.get("user_id"))
+    await request_start_task(callback.from_user.id, state_data.get("user_id"))
 
     await callback.message.answer("Всё готово!")
     await state.clear()
@@ -170,4 +170,4 @@ async def pick_existed_filter(callback: types.CallbackQuery, callback_data: User
         """,
         int(callback_data.user_id)
     )
-    await make_scrapper_request(callback.from_user.id, filter_data.get("user_id"))
+    await request_start_task(callback.from_user.id, filter_data.get("user_id"))

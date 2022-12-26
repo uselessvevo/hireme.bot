@@ -2,13 +2,15 @@ import aiohttp
 from core import config
 
 
-async def make_scrapper_request(curator_id: int, user_id: int) -> None:
+async def request_start_task(curator_id: int, user_id: int) -> None:
     """
     Call Scrapper Web API
 
     Args:
         curator_id (int): curator id
         user_id (int): user id
+
+    TODO: Replace arguments with `User` model
     """
     params = {"curator_id": curator_id, "user_id": user_id}
 
