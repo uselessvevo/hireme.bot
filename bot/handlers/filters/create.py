@@ -54,13 +54,34 @@ async def register_filter(callback: types.CallbackQuery, callback_data: UserCall
 
 
 @router.callback_query(UserCallback.filter(F.action == "register_filter_start"))
-async def country_prompt(callback: types.CallbackQuery, callback_data: UserCallback, state: FSMContext) -> None:
-    await callback.message.answer("Введите название стран через запятую")
+async def text_request_prompt(callback: types.CallbackQuery, callback_data: UserCallback, state: FSMContext) -> None:
+    await callback.message.answer("Введите текст запроса (к примеру: python junior")
     await state.update_data({"user_id": callback_data.user_id})
+    await state.set_state(FilterCreateState.letter)
+
+
+@router.callback_query(UserCallback.filter(F.action == "register_filter_start"))
+async def letter_prompt(callback: types.CallbackQuery, callback_data: UserCallback, state: FSMContext) -> None:
+    if not message.text.strip():
+        await message.answer("Введите текст запроса")
+        return
+
+    await callback.message.answer("Отлично! Теперь введите сопроводительное письмо")  # add inline keyboard to choose from existing one
     await state.set_state(FilterCreateState.areas)
 
 
-@router.message(filters.StateFilter(FilterCreateState.areas))
+@router.callback_query(filters.StateFilter(FilterCreateState.areas))
+async def areas_prompt(callback: types.CallbackQuery, callback_data: UserCallback, state: FSMContext) -> None:
+    if not message.text.strip():
+        await message.answer("Введите текст сопроводительного письма")
+        return
+
+    await state.update_state({"letter": message.text})
+    await callback.message.answer("Отлично! Теперь введите название стран через запятую")
+    await state.set_state(FilterCreateState.salary)
+
+
+@router.message(filters.StateFilter(FilterCreateState.salary))
 async def salary_prompt(message: types.Message, state: FSMContext) -> None:
     areas_url = await build_area_filter(message.text)
     if not areas_url:
@@ -108,7 +129,11 @@ async def filter_register_finish(message: types.Message, state: FSMContext) -> N
 async def filter_register_finish(callback: types.CallbackQuery, state: FSMContext) -> None:
     state_data = await state.get_data()
     state_data.update({"filter_url": await build_resume_url_filter(state_data.get("user_id"))})
-    filter_data = await build_filter_json({k: v for (k, v) in state_data.items() if k in ("areas", "salary")})
+
+    filter_data = {k: v for (k, v) in state_data.items() if k in ("areas", "salary")}
+    filter_data.update({"letter": state_data.get("letter")})
+    filter_data = await build_filter_json(filter_data)
+
     filter_string = await build_result_filter([state_data.get(i) for i in ("areas_url", "salary_url", "filter_url")])
 
     await db.pool.execute(
