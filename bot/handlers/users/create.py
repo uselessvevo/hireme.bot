@@ -146,7 +146,7 @@ async def user_register_finish(message: types.Message, state: FSMContext) -> Non
 @router.callback_query(filters.StateFilter(RegisterUserStates.finish))
 async def user_register_finish(callback: types.CallbackQuery, state: FSMContext) -> None:
     state_data = await state.get_data()
-    user_id = await db.pool.execute(
+    user_id = await db.pool.fetchval(
         """
         INSERT INTO
             users (
@@ -180,7 +180,7 @@ async def user_register_finish(callback: types.CallbackQuery, state: FSMContext)
             ($1, $2)
         """,
         state_data.get("transmittal_letter"),
-        user_id
+        int(user_id)
     )
     await callback.message.answer("Всё готово!")
     await state.clear()

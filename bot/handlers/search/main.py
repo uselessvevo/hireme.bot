@@ -61,23 +61,25 @@ async def search_request(callback: types.CallbackQuery, state: FSMContext):
 
     for user in users:
         user = dict(user)
-        button = [
+        buttons = [
             types.InlineKeyboardButton(
-                text="Выбрать существующий фильтр",
+                text="Создать",
                 callback_data=UserCallback(
-                    action="pick_existed_filter",
+                    action="register_filter",
                     user_id=user.get("id")
                 ).pack()
             )
-        ] if user.get("filter_id") else [
+        ]
+        if user.get("filter_id"):
+            buttons.append([
                 types.InlineKeyboardButton(
                     text="Выбрать",
                     callback_data=UserCallback(
-                        action="register_filter",
+                        action="pick_existed_filter",
                         user_id=user.get("id")
                     ).pack()
                 )
-            ]
+            ])
 
         fullname = " ".join(user.get(i) for i in ("middlename", "firstname", "patronymic"))
         await callback.message.answer(
@@ -86,6 +88,6 @@ async def search_request(callback: types.CallbackQuery, state: FSMContext):
             f"📌 Ссылка на резюме: {user.get('resume_url')}",
             parse_mode="Markdown",
             reply_markup=types.InlineKeyboardMarkup(
-                inline_keyboard=[button]
+                inline_keyboard=[buttons]
             )
         )

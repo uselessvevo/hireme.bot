@@ -42,6 +42,10 @@ async def build_resume_filter(resume: str) -> typing.Union[str, None]:
     return "resume=%s" % resume
 
 
+async def build_text_filter(text: str) -> typing.Union[str, None]:
+    return "text=%s" % text
+
+
 async def build_result_filter(filters: list[str]) -> typing.Union[str, None]:
     return "&".join(filters)[1:]
 
