@@ -33,6 +33,12 @@ async def start(message: types.Message) -> None:
                         text="Поисковой запрос",
                         callback_data="search_request"
                     )
+                ],
+                [
+                    types.InlineKeyboardButton(
+                        text="Админ. панель",
+                        callback_data="admin_menu"
+                    )
                 ]
             ]
         )
