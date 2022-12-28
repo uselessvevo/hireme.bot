@@ -33,9 +33,8 @@ async def show_employee_requests(callback: types.CallbackQuery, state: FSMContex
     for request in requests:
         request = dict(request)
         await callback.message.answer(
-            text="Имя пользователя: %s\n"
-                 "Id пользователя: %s" % (request.get("username"), request.get("user_id")),
-            parse_mode="Markdown",
+            text=f"Имя пользователя: {request.get('username')}\n"
+                 f"Id пользователя: {request.get('user_id')}",
             reply_markup=types.InlineKeyboardMarkup(
                 inline_keyboard=[
                     [
@@ -61,9 +60,9 @@ async def accept_new_employee(callback: types.CallbackQuery, callback_data: Empl
         INSERT INTO
             users (id, curator_id, firstname, middlename, patronymic, resume_url, email, password, is_employee, is_admin) 
         VALUES
-            ($1, $2, $3, $4, $5, $6, $7, $8)
+            ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
         """,
-        callback.from_user.id,
+        callback_data.user_id,
         None,
         callback_data.username,
         "-",
