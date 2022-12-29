@@ -16,9 +16,10 @@ router.callback_query.middleware(EmployeePermissionMiddleware())
 @router.callback_query(filters.Text("register_user"))
 async def register_user(callback: types.CallbackQuery) -> None:
     await callback.message.answer(
-        "Для создания пользователя понадобится поэтапно ввести следующие данные: \n"
+        "Для создания пользователя от вас понадобится пройти 7 шагов и поэтапно ввести следующие данные: \n"
+        "📌 Эл. почта\n"
         "📌 Ссылка на [резюме на hh.ru](https://hh.ru)\n"
-        "📌 Эл. почта"
+        "📌 Пароль от учётной записи\n"
         "📌 Фамилию, имя и отчество\n"
         "📌 Сопроводительное письмо\n\n"
         "Начнём?",
@@ -43,7 +44,7 @@ async def register_user(callback: types.CallbackQuery) -> None:
 
 @router.callback_query(filters.Text("register_user_start"))
 async def username_prompt(callback: types.CallbackQuery, state: FSMContext) -> None:
-    await callback.message.answer("Введите эл. почту")
+    await callback.message.answer("(1/6) Введите эл. почту")
     await state.set_state(RegisterUserStates.email)
 
 
@@ -51,11 +52,11 @@ async def username_prompt(callback: types.CallbackQuery, state: FSMContext) -> N
 async def resume_prompt(message: types.Message, state: FSMContext) -> None:
     username = await check_email(message.text)
     if not username:
-        await message.answer("Введите корректную эл. почту")
+        await message.answer("(1/6) Введите корректную эл. почту")
         return
 
     await state.update_data({"email": message.text})
-    await message.answer("Отлично! Теперь введите ссылку на резюме (hh.ru)")
+    await message.answer("(2/6) Отлично! Теперь введите ссылку на резюме (hh.ru)")
     await state.set_state(RegisterUserStates.resume_url)
 
 
@@ -63,11 +64,11 @@ async def resume_prompt(message: types.Message, state: FSMContext) -> None:
 async def password_prompt(message: types.Message, state: FSMContext) -> None:
     resume_url = await check_url(message.text)
     if not resume_url:
-        await message.answer("Введите корректную ссылку на резюме (https://...)")
+        await message.answer("(2/6) Введите корректную ссылку на резюме (https://...)")
         return
 
     await state.update_data({"resume_url": resume_url})
-    await message.answer("Отлично! Теперь введите пароль")
+    await message.answer("(3/6) Отлично! Теперь введите пароль")
     await state.set_state(RegisterUserStates.password)
 
 
@@ -75,12 +76,12 @@ async def password_prompt(message: types.Message, state: FSMContext) -> None:
 async def middlename_prompt(message: types.Message, state: FSMContext) -> None:
     password = await check_password(message.text)
     if not password:
-        await message.answer("Введите корректный пароль (латинские буквы + цифры)")
+        await message.answer("(3/6) Введите корректный пароль (латинские буквы + цифры)")
 
     await message.delete()
     await state.update_data({"password": message.text})
     await message.answer(
-        "Отлично! Теперь введите *фамилию*",
+        "(4/6) Отлично! Теперь введите *фамилию*",
         parse_mode="Markdown"
     )
     await state.set_state(RegisterUserStates.middlename)
@@ -89,33 +90,33 @@ async def middlename_prompt(message: types.Message, state: FSMContext) -> None:
 @router.message(filters.StateFilter(RegisterUserStates.middlename))
 async def firstname_prompt(message: types.Message, state: FSMContext) -> None:
     if not await check_name(message.text):
-        await message.answer("Некорректная фамилия")
+        await message.answer("(4/6) Некорректная фамилия")
         return
 
     await state.update_data({"middlename": message.text})
-    await message.answer("Введите имя")
+    await message.answer("(5/6) Введите имя")
     await state.set_state(RegisterUserStates.firstname)
 
 
 @router.message(filters.StateFilter(RegisterUserStates.firstname))
 async def patronymic_prompt(message: types.Message, state: FSMContext) -> None:
     if not await check_name(message.text):
-        await message.answer("Некорректное имя")
+        await message.answer("(5/6) Некорректное имя")
         return
 
     await state.update_data({"firstname": message.text})
-    await message.answer("Введите отчество")
+    await message.answer("(5/6) Введите отчество")
     await state.set_state(RegisterUserStates.patronymic)
 
 
 @router.message(filters.StateFilter(RegisterUserStates.patronymic))
 async def transmittal_letter_prompt(message: types.Message, state: FSMContext) -> None:
     if not await check_name(message.text):
-        await message.answer("Некорректное отчество")
+        await message.answer("(5/6) Некорректное отчество")
         return
 
     await state.update_data({"patronymic": message.text})
-    await message.answer("Введите сопроводительное письмо")
+    await message.answer("(6/6) Введите сопроводительное письмо")
     await state.set_state(RegisterUserStates.transmittal_letter)
 
 
