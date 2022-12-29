@@ -1,4 +1,3 @@
-from enum import Enum
 from typing import Callable, Dict, Any, Union, Awaitable
 
 from aiogram import types
@@ -6,19 +5,13 @@ from aiogram import BaseMiddleware
 from bot.loader import db
 
 
-class AllowedRoles(Enum):
-    is_admin: str = "is_admin"
-    is_employee: str = "is_employee"
-
-
-class UserPermissions(Enum):
-    DEFAULT: int = 0
+ALLOWED_ROLES = ("is_admin", "is_employee")
 
 
 class EmployeePermissionMiddleware(BaseMiddleware):
 
-    def __init__(self, *args, role: str = "is_employee", **kwargs) -> None:
-        if role not in tuple(i.value for i in AllowedRoles):
+    def __init__(self, *args, role: ALLOWED_ROLES = "is_employee", **kwargs) -> None:
+        if role not in ALLOWED_ROLES:
             raise KeyError("Key %s not found" % role)
 
         self._role = role
