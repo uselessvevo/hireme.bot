@@ -12,7 +12,7 @@ router = Router(name="admin.requests")
 
 
 @router.callback_query(filters.Text("send_employee_register_request"))
-async def send_employee_register_request(callback: types.CallbackQuery, state: FSMContext) -> None:
+async def send_employee_register_request(callback: types.CallbackQuery) -> None:
     await db.pool.execute(
         """
         INSERT INTO employee_requests (user_id, username) VALUES ($1, $2)
@@ -24,7 +24,7 @@ async def send_employee_register_request(callback: types.CallbackQuery, state: F
 
 
 @router.callback_query(filters.Text("show_employee_requests"))
-async def show_employee_requests(callback: types.CallbackQuery, state: FSMContext) -> None:
+async def show_employee_requests(callback: types.CallbackQuery) -> None:
     requests = await db.pool.fetch(
         """
         SELECT * FROM employee_requests
@@ -52,8 +52,7 @@ async def show_employee_requests(callback: types.CallbackQuery, state: FSMContex
 
 
 @router.callback_query(EmployeeRegisterCallback.filter())
-async def accept_new_employee(callback: types.CallbackQuery, callback_data: EmployeeRegisterCallback,
-                              state: FSMContext) -> None:
+async def accept_new_employee(callback: types.CallbackQuery, callback_data: EmployeeRegisterCallback) -> None:
     from bot.loader import bot
     await db.pool.execute(
         """
