@@ -1,12 +1,10 @@
-from aiogram import F
 from aiogram import types
 from aiogram import Router
 from aiogram import filters
-from aiogram.fsm.context import FSMContext
 
-from bot.handlers.users.callbacks import UserCallback
 from bot.loader import db
 from bot.handlers.admin.callbacks import EmployeeRegisterCallback
+
 
 router = Router(name="admin.requests")
 
@@ -33,8 +31,8 @@ async def show_employee_requests(callback: types.CallbackQuery) -> None:
     for request in requests:
         request = dict(request)
         await callback.message.answer(
-            text=f"Имя пользователя: {request.get('username')}\n"
-                 f"Id пользователя: {request.get('user_id')}",
+            f"Имя пользователя: {request.get('username')}\n"
+            f"Id пользователя: {request.get('user_id')}",
             reply_markup=types.InlineKeyboardMarkup(
                 inline_keyboard=[
                     [
