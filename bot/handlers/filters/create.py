@@ -57,7 +57,7 @@ async def register_filter(callback: types.CallbackQuery, callback_data: UserCall
 @router.callback_query(UserCallback.filter(F.action == "register_filter_start"))
 async def text_request_prompt(callback: types.CallbackQuery, callback_data: UserCallback, state: FSMContext) -> None:
     await callback.message.delete()
-    await callback.message.answer("Введите текст запроса. К примеру, 'Python junior'")
+    await callback.message.answer("Введите текст запроса. К примеру: python junior'")
     await state.update_data({"user_id": callback_data.user_id})
     await state.set_state(FilterCreateState.letter)
 

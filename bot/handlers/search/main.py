@@ -71,7 +71,7 @@ async def search_request(callback: types.CallbackQuery, state: FSMContext):
             )
         ]
         if user.get("filter_id"):
-            buttons.append([
+            buttons.append(
                 types.InlineKeyboardButton(
                     text="Выбрать",
                     callback_data=UserCallback(
@@ -79,7 +79,7 @@ async def search_request(callback: types.CallbackQuery, state: FSMContext):
                         user_id=user.get("id")
                     ).pack()
                 )
-            ])
+            )
 
         fullname = " ".join(user.get(i) for i in ("middlename", "firstname", "patronymic"))
         await callback.message.answer(

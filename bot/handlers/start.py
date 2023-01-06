@@ -1,6 +1,7 @@
 from aiogram import types
 from aiogram import Router
 from aiogram import filters
+from aiogram.fsm.context import FSMContext
 
 from bot.middlewares import EmployeePermissionMiddleware
 
@@ -10,8 +11,9 @@ router.callback_query.middleware(EmployeePermissionMiddleware())
 
 
 @router.message(filters.Command(commands=["start"]))
-async def start(message: types.Message) -> None:
+async def start(message: types.Message, state: FSMContext) -> None:
     await message.delete()
+    await state.clear()
     await message.answer(
         text="Выбор действия",
         reply_markup=types.InlineKeyboardMarkup(

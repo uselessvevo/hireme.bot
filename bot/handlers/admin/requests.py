@@ -28,6 +28,9 @@ async def show_employee_requests(callback: types.CallbackQuery) -> None:
         SELECT * FROM employee_requests
         """
     )
+    if not requests:
+        await callback.message.answer("Нет активных заявок")
+
     for request in requests:
         request = dict(request)
         await callback.message.answer(

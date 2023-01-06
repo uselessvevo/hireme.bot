@@ -4,7 +4,7 @@ from aiogram import filters
 from aiogram.fsm.context import FSMContext
 
 from bot.loader import db
-from bot.handlers.users.callbacks import UserCallback
+from bot.handlers.users.callbacks import UserCallback, PaginationCallback
 from bot.middlewares import EmployeePermissionMiddleware
 
 router = Router(name="users.main")
@@ -69,8 +69,9 @@ async def users_list(callback: types.CallbackQuery, state: FSMContext):
                         ),
                         types.InlineKeyboardButton(
                             text="Показать последние отклики",
-                            callback_data=UserCallback(
+                            callback_data=PaginationCallback(
                                 action="show_vacancies_callback",
+                                offset=0,
                                 user_id=user.get("id")
                             ).pack()
                         )
