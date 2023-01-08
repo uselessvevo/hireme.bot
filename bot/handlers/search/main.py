@@ -34,13 +34,10 @@ async def search_request(callback: types.CallbackQuery, state: FSMContext):
             filters f 
         ON 
             u.id = f.user_id
-        WHERE
-            curator_id = $1
         ORDER BY 
             u.id
         LIMIT 1
         """,
-        callback.from_user.id
     )
 
     if not users:

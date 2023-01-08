@@ -7,6 +7,6 @@ class UserCallback(CallbackData, prefix="user_callback"):
 
 
 class PaginationCallback(CallbackData, prefix="page_counter"):
-    action: str  # next/previous
+    action: str  # next/previous/manually
     offset: int
     user_id: int

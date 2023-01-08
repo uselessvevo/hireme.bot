@@ -88,8 +88,8 @@ async def pagination_keyboard_factory(
     return [page_buttons, arrow_buttons]
 
 
-@router.callback_query(PaginationCallback.filter(F.action == "show_vacancies_callback"))
-async def show_vacancies_callback(
+@router.callback_query(PaginationCallback.filter(F.action == "show_vacancies"))
+async def show_vacancies(
     callback: types.CallbackQuery,
     callback_data: PaginationCallback,
     state: FSMContext

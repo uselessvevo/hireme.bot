@@ -1,4 +1,3 @@
-import asyncpg
 from aiogram import F
 from aiogram import types
 from aiogram import Router
@@ -15,7 +14,7 @@ from bot.handlers.filters.helpers import build_result_filter
 from bot.handlers.filters.helpers import build_salary_filter
 from bot.handlers.filters.helpers import build_text_filter
 
-from core.requests import request_start_task
+from bot.requests import request_start_task
 
 router = Router(name="fitlers.create")
 router.message.middleware(EmployeePermissionMiddleware())

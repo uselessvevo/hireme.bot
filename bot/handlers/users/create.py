@@ -158,10 +158,12 @@ async def user_register_finish(callback: types.CallbackQuery, state: FSMContext)
                 password,
                 firstname, 
                 middlename, 
-                patronymic
+                patronymic,
+                is_employee,
+                is_admin
             )
         VALUES
-            (DEFAULT, $1, $2, $3, $4, $5, $6, $7)
+            (DEFAULT, $1, $2, $3, $4, $5, $6, $7, FALSE, FALSE)
         RETURNING 
             id
         """,

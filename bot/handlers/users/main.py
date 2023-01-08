@@ -7,6 +7,7 @@ from bot.loader import db
 from bot.handlers.users.callbacks import UserCallback, PaginationCallback
 from bot.middlewares import EmployeePermissionMiddleware
 
+
 router = Router(name="users.main")
 router.message.middleware(EmployeePermissionMiddleware())
 router.callback_query.middleware(EmployeePermissionMiddleware())
@@ -19,7 +20,7 @@ async def users_list(callback: types.CallbackQuery, state: FSMContext):
 
     users = await db.pool.fetch(
         """
-        SELECT
+        SELECT DISTINCT on(u.id)
             u.id,
             u.email,
             u.resume_url,
@@ -29,9 +30,8 @@ async def users_list(callback: types.CallbackQuery, state: FSMContext):
         FROM 
             users u
         WHERE
-            curator_id = $1
-        """,
-        callback.from_user.id
+            is_employee = FALSE
+        """
     )
 
     if not users:
@@ -70,7 +70,7 @@ async def users_list(callback: types.CallbackQuery, state: FSMContext):
                         types.InlineKeyboardButton(
                             text="Показать последние отклики",
                             callback_data=PaginationCallback(
-                                action="show_vacancies_callback",
+                                action="show_vacancies",
                                 offset=0,
                                 user_id=user.get("id")
                             ).pack()
