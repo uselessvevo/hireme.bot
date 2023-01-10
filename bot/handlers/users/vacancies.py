@@ -46,16 +46,18 @@ async def pagination_keyboard_factory(
         )
     ]
 
-    stop_page_slice = 5
+    start_page_slice = 0 if current_offset <= 10 else current_offset // 10 - 2
+
+    stop_page_slice = page_amount
     if (current_offset // 10) + 1 == page_amount:
         stop_page_slice = page_amount
     elif current_offset > 10:
         stop_page_slice = current_offset // 10 + 3
 
-    for page in range(
-        0 if current_offset <= 10 else current_offset // 10 - 2,
-        stop_page_slice
-    ):
+    for page in range(start_page_slice, stop_page_slice):
+        if page == stop_page_slice - 1:
+            break
+
         page_buttons.append(
             types.InlineKeyboardButton(
                 text=str(page + 1),
@@ -89,7 +91,7 @@ async def pagination_keyboard_factory(
 
 
 @router.callback_query(PaginationCallback.filter(F.action == "show_vacancies"))
-async def show_vacancies(
+async def show_vacancies_callback(
     callback: types.CallbackQuery,
     callback_data: PaginationCallback,
     state: FSMContext
@@ -108,7 +110,7 @@ async def show_vacancies(
         await callback.message.answer("Откликов не найдено")
 
     elif len(vacancies) <= 10:
-        await show_vacancies(callback.message, callback_data, state, 0)
+        await show_vacancies(callback.message, callback_data, state, 0, False)
 
     else:
         state_data = await state.get_data()
@@ -144,7 +146,8 @@ async def show_vacancies(
     message: types.Message,
     callback_data: PaginationCallback,
     state: FSMContext,
-    offset: int
+    offset: int,
+    show_pagination: bool = True
 ) -> None:
     vacancies = await db.pool.fetch(
         """
@@ -153,7 +156,6 @@ async def show_vacancies(
         callback_data.user_id,
         offset
     )
-    buttons = await pagination_keyboard_factory(callback_data, state)
 
     for vacancy in vacancies:
         vacancy = dict(vacancy)
@@ -165,9 +167,11 @@ async def show_vacancies(
             parse_mode="Markdown"
         )
 
-    await message.answer(
-        text="Выберите страницу или нажмите 'Далее/Назад'",
-        reply_markup=types.InlineKeyboardMarkup(
-            inline_keyboard=buttons
+    if show_pagination:
+        buttons = await pagination_keyboard_factory(callback_data, state)
+        await message.answer(
+            text="Выберите страницу или нажмите 'Далее/Назад'",
+            reply_markup=types.InlineKeyboardMarkup(
+                inline_keyboard=buttons
+            )
         )
-    )
