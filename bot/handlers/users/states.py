@@ -21,6 +21,7 @@ class EditUserStates(StatesGroup):
     patronymic = State()
     curator_id = State()
     password = State()
+    letter = State()
 
 
 class ApplyFilterStates(StatesGroup):
