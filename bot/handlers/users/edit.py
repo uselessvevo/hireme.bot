@@ -45,15 +45,15 @@ async def edit_menu(callback: types.CallbackQuery, callback_data: UserCallback, 
                         callback_data=UserCallback(action="email", user_id=callback_data.user_id).pack()
                     ),
                     types.InlineKeyboardButton(
-                        text="Ссылка на резюме",
-                        callback_data=UserCallback(action="resume_url", user_id=callback_data.user_id).pack()
-                    ),
-                    types.InlineKeyboardButton(
                         text="Пароль",
                         callback_data=UserCallback(action="password", user_id=callback_data.user_id).pack()
                     ),
                 ],
                 [
+                    types.InlineKeyboardButton(
+                        text="Ссылка на резюме",
+                        callback_data=UserCallback(action="resume_url", user_id=callback_data.user_id).pack()
+                    ),
                     types.InlineKeyboardButton(
                         text="Сопроводительно письмо",
                         callback_data=UserCallback(action="letter", user_id=callback_data.user_id).pack()
