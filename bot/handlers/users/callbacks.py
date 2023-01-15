@@ -11,3 +11,7 @@ class PaginationCallback(CallbackData, prefix="pagination"):
     offset: int
     user_id: int
     status: str = "all"
+
+
+class CreateUserCallback(CallbackData, prefix="user_create"):
+    state: str

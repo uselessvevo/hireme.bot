@@ -56,7 +56,7 @@ async def register_filter(callback: types.CallbackQuery, callback_data: UserCall
 @router.callback_query(UserCallback.filter(F.action == "register_filter_start"))
 async def text_request_prompt(callback: types.CallbackQuery, callback_data: UserCallback, state: FSMContext) -> None:
     await callback.message.delete()
-    await callback.message.answer("Введите текст запроса. К примеру: python junior'")
+    await callback.message.answer("Введите текст запроса. К примеру: Python junior'")
     await state.update_data({"user_id": callback_data.user_id})
     await state.set_state(FilterCreateState.letter)
 
@@ -64,7 +64,7 @@ async def text_request_prompt(callback: types.CallbackQuery, callback_data: User
 @router.message(filters.StateFilter(FilterCreateState.letter))
 async def letter_prompt(message: types.Message, state: FSMContext) -> None:
     if not message.text.strip():
-        await message.answer("Введите корректный текст запроса. К примеру, 'Python junior'")
+        await message.answer("Введите корректный текст запроса. К примеру, Python junior")
         return
 
     await state.update_data({"text": message.text.strip()})
@@ -93,15 +93,24 @@ async def salary_prompt(message: types.Message, state: FSMContext) -> None:
 
     await state.update_data({"areas_url": areas_url})
     await state.update_data({"areas": [i.strip() for i in message.text.strip().split(",")]})
-    await message.answer("Отлично! Теперь введите желаемый уровень дохода")
+    await message.answer(
+        "Отлично! Теперь введите желаемый уровень дохода\n\n*ВВЕДИТЕ \"-\" ДЛЯ ПРОПУСКА*",
+        parse_mode="Markdown"
+    )
     await state.set_state(FilterCreateState.is_ready)
 
 
 @router.message(filters.StateFilter(FilterCreateState.is_ready))
 async def filter_register_finish(message: types.Message, state: FSMContext) -> None:
     salary_url = await build_salary_filter(message.text)
-    if not salary_url:
-        await message.answer("Введите корректный уровень дохода")
+    if message.text == "-":
+        salary_url = None
+
+    elif not salary_url:
+        await message.answer(
+            "Введите корректный уровень дохода\n\n*ВВЕДИТЕ \"-\" ДЛЯ ПРОПУСКА*",
+            parse_mode="Markdown"
+        )
         return
 
     await state.update_data({"salary_url": salary_url})
@@ -174,3 +183,4 @@ async def pick_existed_filter(callback: types.CallbackQuery, callback_data: User
         int(callback_data.user_id)
     )
     await request_start_task(callback.from_user.id, filter_data.get("user_id"))
+    await callback.message.answer("Начинаем рассылку!")

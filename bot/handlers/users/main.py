@@ -26,9 +26,14 @@ async def users_list(callback: types.CallbackQuery, state: FSMContext):
             u.resume_url,
             u.firstname,
             u.middlename,
-            u.patronymic
+            u.patronymic,
+            l.content as letter
         FROM 
             users u
+        LEFT JOIN 
+            letters l 
+        ON 
+            u.id = l.user_id
         WHERE
             is_employee = FALSE
         """
@@ -55,7 +60,8 @@ async def users_list(callback: types.CallbackQuery, state: FSMContext):
         await callback.message.answer(
             f"📌 *ФИО:* _{fullname}_\n\n"
             f"📌 *Эл. Почта:* _{user.get('email')}_\n\n"
-            f"📌 Ссылка на резюме: {user.get('resume_url')}",
+            f"📌 Ссылка на резюме: https://hh.ru/resume/{user.get('resume_url')}\n\n"
+            f"📌 Сопроводительное письмо: \n\n{user.get('letter')}",
             parse_mode="Markdown",
             reply_markup=types.InlineKeyboardMarkup(
                 inline_keyboard=[

@@ -3,6 +3,7 @@ from aiogram import Router
 from aiogram import filters
 from aiogram.fsm.context import FSMContext
 
+from bot.handlers.users.callbacks import CreateUserCallback
 from bot.loader import db
 from bot.middlewares import EmployeePermissionMiddleware
 from bot.handlers.users.states import RegisterUserStates
@@ -42,8 +43,31 @@ async def register_user(callback: types.CallbackQuery) -> None:
     )
 
 
+@router.callback_query(CreateUserCallback.filter())
+async def action_button_handler(callback_data: CreateUserCallback, state: FSMContext) -> None:
+    fsm_state_obj = getattr(RegisterUserStates, callback_data.state) or None
+    if fsm_state_obj:
+        await state.set_state(fsm_state_obj)
+
+
 @router.callback_query(filters.Text("register_user_start"))
 async def username_prompt(callback: types.CallbackQuery, state: FSMContext) -> None:
+    """
+    reply_markup=types.InlineKeyboardMarkup(
+        inline_keyboard=[
+            [
+                types.InlineKeyboardButton(
+                    text="Назад",
+                    callback_data=CreateUserCallback(state="back").pack()
+                ),
+                types.InlineKeyboardButton(
+                    text="Отмена",
+                    callback_data=CreateUserCallback(state="finish").pack()
+                )
+            ]
+        ]
+    )
+    """
     await callback.message.answer("(1/6) Введите эл. почту")
     await state.set_state(RegisterUserStates.email)
 
@@ -105,18 +129,32 @@ async def patronymic_prompt(message: types.Message, state: FSMContext) -> None:
         return
 
     await state.update_data({"firstname": message.text})
-    await message.answer("(5/6) Введите отчество")
+    await message.answer(
+        "(5/6) Введите отчество\n\n*ВВЕДИТЕ \"-\" ДЛЯ ПРОПУСКА*",
+        parse_mode="Markdown"
+    )
     await state.set_state(RegisterUserStates.patronymic)
 
 
 @router.message(filters.StateFilter(RegisterUserStates.patronymic))
 async def transmittal_letter_prompt(message: types.Message, state: FSMContext) -> None:
-    if not await check_name(message.text):
-        await message.answer("(5/6) Некорректное отчество")
+    patronymic = check_name(message.text)
+    if message.text == "-":
+        patronymic = None
+
+    elif not await patronymic:
+        await message.answer(
+            "(5/6) Некорректное отчество\n\n*ВВЕДИТЕ \"-\" ДЛЯ ПРОПУСКА*",
+            parse_mode="Markdown"
+        )
         return
 
-    await state.update_data({"patronymic": message.text})
-    await message.answer("(6/6) Введите сопроводительное письмо")
+    await message.answer(
+        "(6/6) Введите сопроводительное письмо",
+        parse_mode="Markdown"
+    )
+
+    await state.update_data({"patronymic": patronymic})
     await state.set_state(RegisterUserStates.transmittal_letter)
 
 
@@ -185,5 +223,8 @@ async def user_register_finish(callback: types.CallbackQuery, state: FSMContext)
         state_data.get("transmittal_letter"),
         int(user_id)
     )
-    await callback.message.answer("Всё готово!")
+    await callback.message.answer(
+        "Всё готово! Теперь перейдите к "
+        "главному меню и выберите \"Рассылка\" или \"Пользователи\""
+    )
     await state.clear()

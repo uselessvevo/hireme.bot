@@ -222,7 +222,7 @@ async def confirm_resume_url(message: types.Message, state: FSMContext) -> None:
 
 @router.callback_query(UserCallback.filter(F.action == "letter"))
 async def prompt_letter(callback: types.CallbackQuery, callback_data: UserCallback, state: FSMContext) -> None:
-    await state.update_data({"letter": callback_data.user_id})
+    await state.update_data({"user_id": callback_data.user_id})
     await callback.message.answer("Введите сопроводительное письмо")
     await state.set_state(EditUserStates.letter)
 
