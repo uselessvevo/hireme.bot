@@ -109,7 +109,7 @@ async def vacancies_message_factory(
     else:
         vacancies = await db.pool.fetch(
             """
-            SELECT * FROM vacancies WHERE user_id = $1 LIMIT 10 OFFSET $3
+            SELECT * FROM vacancies WHERE user_id = $1 LIMIT 10 OFFSET $2
             """,
             callback_data.user_id,
             offset
